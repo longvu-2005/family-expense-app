@@ -1,853 +1,840 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
     Receipt,
     Sparkles,
-    ChevronLeft,
-    ChevronRight,
-    ArrowRight,
-    PieChart,
-    ShoppingCart,
-    Zap,
-    Camera,
-    UploadCloud,
-    X,
-    Flame,
-    ShieldCheck,
-    ScanLine,
-    Wand2,
-    Users,
-    CheckCircle2,
     TrendingUp,
+    PieChart,
+    ShieldCheck,
+    ArrowRight,
+    ArrowUpRight,
     Lock,
-    Award,
-    Star,
-    Mail,
-    Phone,
-    MapPin,
-    ExternalLink,
-    Cpu,
-    BarChart3,
+    CheckCircle2,
+    ScanLine,
+    Users,
     Smartphone,
-    Layers,
-    BadgeCheck
+    Bell,
+    ChevronRight,
+    Menu,
+    X,
+    FileText,
+    Check
 } from 'lucide-react';
+
 import './Home.css';
 
-// Danh sách hình ảnh cho Carousel
-const SLIDES = [
+// Dữ liệu mẫu tương tác cho mục Demo Trợ lý AI
+const SAMPLE_RECEIPTS = [
     {
-        url: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1200&q=80",
-        badge: "Công Nghệ AI Gemini",
-        badgeColor: "bg-indigo-500/80",
-        title: "Quét Hóa Đơn Tự Động Sống Động",
-        desc: "Biến mọi hóa đơn giấy thành dữ liệu chi tiêu chuẩn xác tức thì."
+        id: 'supermarket',
+        tabName: '🛒 Siêu thị WinMart',
+        store: 'Siêu thị WinMart+ (VinCommerce)',
+        total: 450000,
+        category: 'Thực phẩm & Tiêu dùng gia đình',
+        date: '22/10/2026',
+        items: ['Sữa tươi tiệt trùng Vinamilk 1L (x2)', 'Trứng gà Ba Huân hộp 10 quả', 'Gạo thơm ST25 túi 5kg', 'Rau củ sạch Đà Lạt'],
+        timeTaken: '1.8 giây'
     },
     {
-        url: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&w=1200&q=80",
-        badge: "Quản Lý Ngân Sách",
-        badgeColor: "bg-purple-500/80",
-        title: "Quỹ Gia Đình Gắn Kết & Rõ Ràng",
-        desc: "Đồng bộ chi tiêu giữa vợ chồng & thành viên trong gia đình."
+        id: 'coffee',
+        tabName: '☕ Highlands Coffee',
+        store: 'Highlands Coffee - Chi nhánh Landmark',
+        total: 115000,
+        category: 'Ăn uống & Cà phê',
+        date: '22/10/2026',
+        items: ['Phin Sữa Đá cỡ lớn (x1)', 'Trà sen vàng cỡ vừa (x1)', 'Bánh mì que pate giòn'],
+        timeTaken: '1.4 giây'
     },
     {
-        url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80",
-        badge: "Phân Tích AI",
-        badgeColor: "bg-emerald-500/80",
-        title: "Báo Cáo Trực Quan & Tối Ưu",
-        desc: "Dự báo dòng tiền và cảnh báo khi chi tiêu quá định mức."
+        id: 'utility',
+        tabName: '⚡ Hóa đơn Tiền Điện EVN',
+        store: 'Tổng Công Ty Điện Lực EVN HCMC',
+        total: 1200000,
+        category: 'Hóa đơn & Dịch vụ sinh hoạt cố định',
+        date: '20/10/2026',
+        items: ['Tiền điện sinh hoạt kỳ 10/2026', 'Sản lượng tiêu thụ: 382 kWh', 'Thuế GTGT 8%'],
+        timeTaken: '2.1 giây'
     }
 ];
 
-// Danh sách thông báo toast xoay vòng
-const TOAST_MESSAGES = [
-    { text: "✨ AI Gemini vừa quét thành công hóa đơn WinMart 450.000đ", time: "Vừa xong" },
-    { text: "🎉 Gia đình Anh Minh vừa tham gia sử dụng FamilyExpense AI", time: "1 phút trước" },
-    { text: "💡 Mẹo: AI tự nhận diện hóa đơn tiền điện & nước hàng tháng!", time: "3 phút trước" },
-    { text: "📊 Ngân sách tháng 10 của bạn đã tiết kiệm được 15%", time: "5 phút trước" }
-];
-
 export default function Home() {
-    const [currentSlide, setCurrentSlide] = useState(0);
-    const [isToastVisible, setIsToastVisible] = useState(true);
-    const [toastIndex, setToastIndex] = useState(0);
-    const [toastFading, setToastFading] = useState(false);
-    const [isScanModalOpen, setIsScanModalOpen] = useState(false);
-    const navigate = useNavigate();
-
-    // Tự động chuyển Slide mỗi 4.5 giây
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
-        }, 4500);
-        return () => clearInterval(timer);
-    }, []);
-
-    // Tự động đổi nội dung Toast mỗi 5 giây
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setToastFading(true);
-            setTimeout(() => {
-                setToastIndex((prev) => (prev + 1) % TOAST_MESSAGES.length);
-                setToastFading(false);
-            }, 400);
-        }, 5000);
-        return () => clearInterval(timer);
-    }, []);
-
-    const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
-    const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + SLIDES.length) % SLIDES.length);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [activeDemoTab, setActiveDemoTab] = useState(SAMPLE_RECEIPTS[0]);
 
     return (
-        <div className="relative min-h-screen bg-slate-950 text-slate-100 font-sans overflow-x-hidden selection:bg-indigo-500 selection:text-white">
+        <div className="min-h-screen bg-slate-950 text-white font-sans selection:bg-indigo-500 selection:text-white relative overflow-x-hidden">
 
-            {/* Glowing Background Ambient Spheres */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-                <div className="absolute -top-40 -left-40 w-96 h-96 bg-indigo-500/25 rounded-full blur-3xl animate-pulse-glow"></div>
-                <div className="absolute top-1/3 -right-20 w-[500px] h-[500px] bg-purple-500/20 rounded-full blur-3xl animate-pulse-glow" style={{ animationDelay: '1.5s' }}></div>
-                <div className="absolute -bottom-40 left-1/3 w-[600px] h-[600px] bg-blue-500/20 rounded-full blur-3xl animate-pulse-glow" style={{ animationDelay: '3s' }}></div>
+            {/* Ambient Background Light Effects */}
+            <div className="fixed inset-0 pointer-events-none z-0">
+                <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl animate-pulse-glow" />
+                <div className="absolute top-1/3 right-10 w-[30rem] h-[30rem] bg-purple-600/15 rounded-full blur-3xl animate-float" />
+                <div className="absolute bottom-1/4 left-10 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl animate-float-delayed" />
             </div>
 
-            {/* MAIN WRAPPER */}
-            <div className="relative z-10 flex flex-col justify-between">
+            {/* 1. HEADER / NAVIGATION */}
+            <header className="sticky top-0 z-50 glass-nav border-b border-white/10">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+                    
+                    {/* Brand Logo */}
+                    <Link to="/" className="flex items-center space-x-3 group">
+                        <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 border border-indigo-400/30 group-hover:scale-105 transition duration-200">
+                            <Receipt size={22} />
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-xl font-black bg-gradient-to-r from-indigo-200 via-white to-blue-300 bg-clip-text text-transparent tracking-tight">
+                                FamilyExpense AI
+                            </span>
+                            <span className="text-[10px] text-indigo-400 font-medium uppercase tracking-wider -mt-0.5">
+                                Quản Lý Chi Tiêu Gia Đình
+                            </span>
+                        </div>
+                    </Link>
 
-                {/* ========================================================
-                    1. HEADER / NAVIGATION BAR
-                ======================================================== */}
-                <header className="sticky top-0 z-50 glass-nav transition-all duration-300">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex items-center justify-between h-20">
+                    {/* Desktop Navigation Links */}
+                    <nav className="hidden lg:flex items-center space-x-8 text-sm font-medium text-slate-300">
+                        <a href="#features" className="hover:text-indigo-400 transition-colors">Tính năng nổi bật</a>
+                        <a href="#how-it-works" className="hover:text-indigo-400 transition-colors">Cách hoạt động</a>
+                        <a href="#ai-demo" className="hover:text-indigo-400 transition-colors">Trải nghiệm AI</a>
+                        <a href="#security" className="hover:text-indigo-400 transition-colors">Bảo mật</a>
+                    </nav>
 
-                            {/* Logo & Brand Name */}
-                            <Link to="/" className="flex items-center space-x-3 cursor-pointer group">
-                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-purple-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform duration-300">
-                                    <Receipt size={24} />
-                                </div>
-                                <span className="text-2xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 tracking-tight">
-                                    FamilyExpense <span className="text-indigo-600 font-black">AI</span>
-                                </span>
+                    {/* Desktop Action Buttons */}
+                    <div className="hidden sm:flex items-center space-x-3">
+                        <Link
+                            to="/scanner"
+                            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-indigo-300 hover:text-white bg-indigo-500/10 hover:bg-indigo-500/20 rounded-xl border border-indigo-500/30 transition-all duration-200 hover:scale-105"
+                        >
+                            <Sparkles size={16} className="text-indigo-400" />
+                            Quét hóa đơn AI
+                        </Link>
+                        <Link
+                            to="/login"
+                            className="px-4 py-2.5 text-sm font-semibold text-slate-300 hover:text-white transition-colors"
+                        >
+                            Đăng nhập
+                        </Link>
+                        <Link
+                            to="/register"
+                            className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 rounded-xl shadow-lg shadow-indigo-600/30 border border-indigo-400/30 transition-all duration-200 hover:scale-105"
+                        >
+                            Bắt đầu miễn phí
+                        </Link>
+                    </div>
+
+                    {/* Mobile Menu Toggle Button */}
+                    <div className="sm:hidden flex items-center">
+                        <button
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            className="p-2 rounded-xl text-slate-400 hover:text-white bg-white/5 border border-white/10"
+                            aria-label="Toggle menu"
+                        >
+                            {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+                        </button>
+                    </div>
+                </div>
+
+                {/* Mobile Dropdown Menu */}
+                {mobileMenuOpen && (
+                    <div className="sm:hidden px-4 pt-3 pb-6 bg-slate-900/95 backdrop-blur-2xl border-b border-white/10 space-y-3">
+                        <a
+                            href="#features"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block px-3 py-2 text-base font-medium text-slate-300 hover:text-white"
+                        >
+                            Tính năng nổi bật
+                        </a>
+                        <a
+                            href="#how-it-works"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block px-3 py-2 text-base font-medium text-slate-300 hover:text-white"
+                        >
+                            Cách hoạt động
+                        </a>
+                        <a
+                            href="#ai-demo"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block px-3 py-2 text-base font-medium text-slate-300 hover:text-white"
+                        >
+                            Trải nghiệm AI
+                        </a>
+                        <a
+                            href="#security"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="block px-3 py-2 text-base font-medium text-slate-300 hover:text-white"
+                        >
+                            Bảo mật
+                        </a>
+                        <div className="pt-3 border-t border-white/10 flex flex-col gap-2.5">
+                            <Link
+                                to="/scanner"
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="w-full py-2.5 text-center font-semibold text-indigo-300 bg-indigo-500/10 rounded-xl border border-indigo-500/30 flex items-center justify-center gap-2"
+                            >
+                                <Sparkles size={16} /> Quét hóa đơn AI
                             </Link>
-
-                            {/* Navigation Links */}
-                            <nav className="hidden md:flex items-center space-x-6 text-sm font-semibold text-slate-700">
-                                <a href="#features" className="hover:text-indigo-600 transition-colors">Tính năng</a>
-                                <a href="#how-it-works" className="hover:text-indigo-600 transition-colors">Cách hoạt động</a>
-                                <a href="#security" className="hover:text-indigo-600 transition-colors">Bảo mật & Uy tín</a>
-                                <a href="#stats" className="hover:text-indigo-600 transition-colors">Thống kê</a>
-                            </nav>
-
-                            {/* Right Navigation Actions */}
-                            <div className="flex items-center space-x-3 sm:space-x-4">
-                                <button
-                                    onClick={() => setIsScanModalOpen(true)}
-                                    className="hidden sm:flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-indigo-50 text-indigo-700 font-semibold hover:bg-indigo-100 transition-all duration-200 border border-indigo-100/80 shadow-sm hover:shadow active:scale-95"
-                                >
-                                    <ScanLine size={18} className="text-indigo-600" />
-                                    <span>Quét Hóa Đơn</span>
-                                </button>
-
-                                <Link
-                                    to="/login"
-                                    className="px-4 py-2.5 rounded-xl text-slate-700 hover:text-indigo-600 font-semibold transition-colors duration-200"
-                                >
-                                    Đăng nhập
-                                </Link>
-
-                                <Link
-                                    to="/register"
-                                    className="relative group overflow-hidden px-6 py-2.5 rounded-xl font-bold text-white shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all duration-300 active:scale-95 inline-flex items-center"
-                                >
-                                    <span className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-[length:200%_auto] group-hover:bg-right transition-all duration-500"></span>
-                                    <span className="relative flex items-center space-x-2">
-                                        <span>Đăng ký ngay</span>
-                                        <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                                    </span>
-                                </Link>
-                            </div>
-
+                            <Link
+                                to="/login"
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="w-full py-2.5 text-center font-semibold text-slate-200 bg-white/5 rounded-xl border border-white/10"
+                            >
+                                Đăng nhập
+                            </Link>
+                            <Link
+                                to="/register"
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="w-full py-2.5 text-center font-semibold text-white bg-indigo-600 rounded-xl shadow-lg shadow-indigo-600/30"
+                            >
+                                Bắt đầu miễn phí
+                            </Link>
                         </div>
                     </div>
-                </header>
+                )}
+            </header>
 
-                {/* ========================================================
-                    2. VIBRANT FLOATING TICKER BANNER
-                ======================================================== */}
-                <div className="w-full bg-slate-900/90 backdrop-blur-md border-y border-indigo-500/20 py-2.5 overflow-hidden relative z-20">
-                    <div className="animate-ticker text-sm text-indigo-200 font-medium">
-                        <div className="flex items-center space-x-8 pr-8">
-                            <span className="inline-flex items-center space-x-2">
-                                <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span>
-                                <span className="text-emerald-400 font-bold">✨ OCR AI Gemini 2.5:</span>
-                                <span>Tự động nhận diện và phân loại hóa đơn siêu tốc trong 0.5s!</span>
-                            </span>
-                            <span className="text-slate-600">•</span>
-                            <span className="inline-flex items-center space-x-2">
-                                <Flame size={16} className="text-amber-400" />
-                                <span>Hơn <strong>12,400+</strong> gia đình đã tin dùng trong tháng này!</span>
-                            </span>
-                            <span className="text-slate-600">•</span>
-                            <span className="inline-flex items-center space-x-2">
-                                <ShieldCheck size={16} className="text-cyan-400" />
-                                <span>Bảo mật chuẩn ngân hàng - Đồng bộ thời gian thực tất cả thành viên</span>
-                            </span>
-                            <span className="text-slate-600">•</span>
-                            <span className="inline-flex items-center space-x-2">
-                                <Zap size={16} className="text-purple-400" />
-                                <span>Báo cáo chi tiêu thông minh bằng biểu đồ sinh động</span>
-                            </span>
-                            <span className="text-slate-600">•</span>
+            {/* 2. HERO SECTION */}
+            <section className="relative z-10 pt-16 sm:pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
+                
+                {/* Version & AI Announcement Pill */}
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/30 backdrop-blur-xl mb-8 transition-transform hover:scale-105">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                    <span className="text-xs sm:text-sm font-semibold text-indigo-300">
+                        ✨ Thế hệ mới: Gemini 2.5 Flash AI • Bóc tách tự động hóa đơn trong 2s
+                    </span>
+                    <ChevronRight size={14} className="text-indigo-400" />
+                </div>
+
+                {/* Big Impact Headline */}
+                <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[1.15] max-w-5xl mx-auto">
+                    Quản Lý Tài Chính Gia Đình <br className="hidden sm:inline" />
+                    <span className="bg-gradient-to-r from-indigo-300 via-indigo-200 to-purple-400 bg-clip-text text-transparent">
+                        Thông Minh Bằng Trí Tuệ Nhân Tạo
+                    </span>
+                </h1>
+
+                {/* Subtitle / Value Proposition */}
+                <p className="mt-6 sm:mt-8 text-base sm:text-xl text-slate-400 max-w-3xl mx-auto font-normal leading-relaxed">
+                    Tạm biệt ghi chép sổ sách thủ công hay nhập Excel phức tạp. Chỉ cần một bức ảnh chụp hóa đơn, 
+                    AI tự động đọc số tiền, phân loại danh mục và đồng bộ chi tiêu cho cả gia đình trong tích tắc.
+                </p>
+
+                {/* CTA Action Buttons */}
+                <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <Link
+                        to="/register"
+                        className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-base rounded-2xl shadow-xl shadow-indigo-600/30 border border-indigo-400/30 transition-all duration-200 hover:scale-105 flex items-center justify-center gap-2"
+                    >
+                        Bắt đầu dùng thử miễn phí
+                        <ArrowRight size={18} />
+                    </Link>
+
+                    <Link
+                        to="/scanner"
+                        className="w-full sm:w-auto px-8 py-4 bg-slate-900/80 hover:bg-slate-800 text-indigo-300 hover:text-white font-semibold text-base rounded-2xl border border-indigo-500/30 backdrop-blur-xl transition-all duration-200 hover:scale-105 flex items-center justify-center gap-2 shadow-lg"
+                    >
+                        <Sparkles size={18} className="text-indigo-400" />
+                        Trải nghiệm Quét Hóa Đơn AI
+                    </Link>
+                </div>
+
+                {/* Trust & Key Metrics */}
+                <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto pt-6 border-t border-white/5">
+                    <div className="p-3">
+                        <p className="text-2xl sm:text-3xl font-black text-white">99.8%</p>
+                        <p className="text-xs sm:text-sm text-slate-400 mt-1">Độ chính xác bóc tách OCR</p>
+                    </div>
+                    <div className="p-3">
+                        <p className="text-2xl sm:text-3xl font-black text-indigo-400">&lt; 2 Giây</p>
+                        <p className="text-xs sm:text-sm text-slate-400 mt-1">Thời gian đọc hóa đơn bằng AI</p>
+                    </div>
+                    <div className="p-3">
+                        <p className="text-2xl sm:text-3xl font-black text-white">100%</p>
+                        <p className="text-xs sm:text-sm text-slate-400 mt-1">Đồng bộ cả gia đình Realtime</p>
+                    </div>
+                    <div className="p-3">
+                        <p className="text-2xl sm:text-3xl font-black text-emerald-400">AES-256</p>
+                        <p className="text-xs sm:text-sm text-slate-400 mt-1">Bảo mật chuẩn mã hóa cao cấp</p>
+                    </div>
+                </div>
+
+                {/* 3. HERO PRODUCT SHOWCASE MOCKUP (MINH HỌA GIAO DIỆN SẢN PHẨM TRỰC QUAN) */}
+                <div className="mt-16 relative max-w-5xl mx-auto">
+                    {/* Glowing Aura Behind Mockup */}
+                    <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 via-purple-600 to-blue-500 rounded-3xl blur-2xl opacity-30 animate-pulse-glow" />
+
+                    {/* Window Container */}
+                    <div className="relative rounded-3xl border border-white/15 bg-slate-900/90 backdrop-blur-2xl shadow-2xl overflow-hidden p-4 sm:p-8">
+                        
+                        {/* Mock Window Header Bar */}
+                        <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-6">
+                            <div className="flex items-center space-x-2">
+                                <span className="w-3 h-3 rounded-full bg-rose-500/80" />
+                                <span className="w-3 h-3 rounded-full bg-amber-500/80" />
+                                <span className="w-3 h-3 rounded-full bg-emerald-500/80" />
+                                <span className="text-xs text-slate-400 ml-3 font-mono hidden sm:inline">
+                                    family-expense-ai // Live Dashboard Preview
+                                </span>
+                            </div>
+                            <div className="flex items-center space-x-2 text-xs">
+                                <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium flex items-center gap-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                                    AI Engine Đang Sẵn Sàng
+                                </span>
+                            </div>
                         </div>
 
-                        <div className="flex items-center space-x-8 pr-8">
-                            <span className="inline-flex items-center space-x-2">
-                                <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span>
-                                <span className="text-emerald-400 font-bold">✨ OCR AI Gemini 2.5:</span>
-                                <span>Tự động nhận diện và phân loại hóa đơn siêu tốc trong 0.5s!</span>
-                            </span>
-                            <span className="text-slate-600">•</span>
-                            <span className="inline-flex items-center space-x-2">
-                                <Flame size={16} className="text-amber-400" />
-                                <span>Hơn <strong>12,400+</strong> gia đình đã tin dùng trong tháng này!</span>
-                            </span>
-                            <span className="text-slate-600">•</span>
-                            <span className="inline-flex items-center space-x-2">
-                                <ShieldCheck size={16} className="text-cyan-400" />
-                                <span>Bảo mật chuẩn ngân hàng - Đồng bộ thời gian thực tất cả thành viên</span>
-                            </span>
-                            <span className="text-slate-600">•</span>
-                            <span className="inline-flex items-center space-x-2">
-                                <Zap size={16} className="text-purple-400" />
-                                <span>Báo cáo chi tiêu thông minh bằng biểu đồ sinh động</span>
-                            </span>
-                            <span className="text-slate-600">•</span>
+                        {/* Showcase Grid: Left (Receipt Scanning Laser) & Right (Extracted Structured Data) */}
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 text-left items-center">
+                            
+                            {/* Left Side: Simulated Receipt with Laser Scan */}
+                            <div className="lg:col-span-5 bg-slate-950/80 rounded-2xl border border-white/10 p-5 relative overflow-hidden shadow-inner">
+                                <div className="flex items-center justify-between text-xs text-slate-400 mb-3 border-b border-white/5 pb-2">
+                                    <span className="flex items-center gap-1.5 font-semibold text-indigo-300">
+                                        <ScanLine size={16} /> Ảnh hóa đơn đầu vào
+                                    </span>
+                                    <span className="text-emerald-400 font-mono text-[10px]">Đang quét OCR</span>
+                                </div>
+
+                                {/* Bill Preview with Animated Laser Line */}
+                                <div className="relative bg-white text-slate-800 p-4 rounded-xl font-mono text-[11px] leading-relaxed shadow-lg overflow-hidden">
+                                    {/* Laser scan line effect */}
+                                    <div className="animate-scan-line" />
+
+                                    <div className="text-center border-b border-dashed border-slate-300 pb-2 mb-2">
+                                        <p className="font-bold text-sm tracking-wider">SIÊU THỊ WINMART+</p>
+                                        <p className="text-[9px] text-slate-500">Hóa Đơn Bán Lẻ • 22/10/2026</p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <div className="flex justify-between">
+                                            <span>1. Sữa tươi Vinamilk 1L</span>
+                                            <span className="font-semibold">78.000 đ</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span>2. Trứng gà sạch 10Q</span>
+                                            <span className="font-semibold">36.000 đ</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span>3. Gạo thơm ST25 5kg</span>
+                                            <span className="font-semibold">195.000 đ</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span>4. Rau củ quả tổng hợp</span>
+                                            <span className="font-semibold">141.000 đ</span>
+                                        </div>
+                                    </div>
+                                    <div className="mt-3 pt-2 border-t border-dashed border-slate-300 flex justify-between font-bold text-xs text-indigo-900">
+                                        <span>TỔNG CỘNG:</span>
+                                        <span>450.000 đ</span>
+                                    </div>
+                                </div>
+
+                                <p className="text-[11px] text-slate-400 text-center mt-3">
+                                    ⚡ Gemini AI tự nhận diện bố cục hóa đơn không cần cắt xén
+                                </p>
+                            </div>
+
+                            {/* Middle Arrow Connector (Desktop) */}
+                            <div className="lg:col-span-1 hidden lg:flex items-center justify-center">
+                                <div className="w-10 h-10 rounded-full bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-400 animate-pulse">
+                                    <ArrowRight size={20} />
+                                </div>
+                            </div>
+
+                            {/* Right Side: Structured AI Results & Family Fund Sync */}
+                            <div className="lg:col-span-6 space-y-4">
+                                <div className="p-5 rounded-2xl bg-gradient-to-br from-indigo-950/60 to-purple-950/40 border border-indigo-500/30">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5 uppercase tracking-wider">
+                                            <CheckCircle2 size={16} /> AI bóc tách tức thì
+                                        </span>
+                                        <span className="text-[11px] text-slate-400 bg-white/5 px-2.5 py-0.5 rounded-full border border-white/10">
+                                            Hoàn tất trong 1.8s
+                                        </span>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3 text-sm">
+                                        <div className="bg-white/5 p-3 rounded-xl border border-white/5">
+                                            <span className="text-[11px] text-slate-400 block">Cửa hàng</span>
+                                            <strong className="text-white">Siêu thị WinMart+</strong>
+                                        </div>
+                                        <div className="bg-white/5 p-3 rounded-xl border border-white/5">
+                                            <span className="text-[11px] text-slate-400 block">Tổng tiền</span>
+                                            <strong className="text-indigo-300 text-base font-black">450.000 đ</strong>
+                                        </div>
+                                        <div className="bg-white/5 p-3 rounded-xl border border-white/5">
+                                            <span className="text-[11px] text-slate-400 block">Danh mục</span>
+                                            <strong className="text-emerald-400">Thực phẩm & Đi chợ</strong>
+                                        </div>
+                                        <div className="bg-white/5 p-3 rounded-xl border border-white/5">
+                                            <span className="text-[11px] text-slate-400 block">Ngày ghi nhận</span>
+                                            <strong className="text-slate-300">22/10/2026</strong>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Sync Status Card */}
+                                <div className="p-4 rounded-xl bg-slate-950/60 border border-white/10 flex items-center justify-between">
+                                    <div className="flex items-center space-x-3">
+                                        <div className="p-2 rounded-lg bg-indigo-500/20 text-indigo-400">
+                                            <Users size={18} />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-semibold text-white">Đã tự động cộng vào Quỹ Gia Đình</p>
+                                            <p className="text-[11px] text-slate-400">Tất cả thành viên trong nhà đều nhận thông báo realtime</p>
+                                        </div>
+                                    </div>
+                                    <Link
+                                        to="/scanner"
+                                        className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 shrink-0 ml-2"
+                                    >
+                                        Thử ngay <ArrowUpRight size={14} />
+                                    </Link>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
 
-                {/* ========================================================
-                    3. MAIN HERO SHOWCASE (Carousel & Floating Widgets)
-                ======================================================== */}
-                <section className="relative flex items-center justify-center py-10 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-                    <div className="relative w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            </section>
 
-                        {/* Left Column: Visual Carousel (7 cols) */}
-                        <div className="lg:col-span-7 relative w-full h-[380px] sm:h-[480px] lg:h-[540px] rounded-3xl overflow-hidden shadow-2xl border border-white/20 group">
-                            <div className="relative w-full h-full">
-                                {SLIDES.map((slide, index) => (
-                                    <div
-                                        key={index}
-                                        className={`carousel-slide absolute inset-0 ${
-                                            index === currentSlide
-                                                ? 'opacity-100 scale-100 z-10'
-                                                : 'opacity-0 scale-105 z-0'
-                                        }`}
-                                    >
-                                        <img
-                                            src={slide.url}
-                                            alt={slide.title}
-                                            className="w-full h-full object-cover"
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
-                                        <div className="absolute bottom-8 left-8 right-8 text-white z-10">
-                                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${slide.badgeColor} backdrop-blur-md uppercase tracking-wider mb-2 inline-block`}>
-                                                {slide.badge}
-                                            </span>
-                                            <h2 className="text-2xl sm:text-3xl font-bold">{slide.title}</h2>
-                                            <p className="text-slate-300 text-sm mt-1">{slide.desc}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+            {/* 4. HIGH-TECH GLOWING MARQUEE TICKER (DÒNG CHỮ CHẠY CÔNG NGHỆ) */}
+            <div className="relative z-20 py-4 bg-slate-900/60 border-y border-indigo-500/20 backdrop-blur-md overflow-hidden">
+                <div className="animate-ticker space-x-8 text-xs font-mono uppercase tracking-widest text-indigo-200">
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20">
+                        <Sparkles size={14} className="text-indigo-400" /> Bóc tách hóa đơn tự động bằng Gemini AI
+                    </span>
+                    <span className="text-indigo-500">•</span>
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20">
+                        <Users size={14} className="text-purple-400" /> Đồng bộ ngân sách cả gia đình realtime
+                    </span>
+                    <span className="text-indigo-500">•</span>
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                        <TrendingUp size={14} className="text-emerald-400" /> Báo cáo trực quan & Biểu đồ chi tiêu thông minh
+                    </span>
+                    <span className="text-indigo-500">•</span>
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20">
+                        <ShieldCheck size={14} className="text-blue-400" /> Bảo mật an toàn chuẩn End-to-End
+                    </span>
+                    <span className="text-indigo-500">•</span>
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20">
+                        <Bell size={14} className="text-amber-400" /> Cảnh báo vượt hạn mức tháng tức thời
+                    </span>
+                    <span className="text-indigo-500">•</span>
 
-                            {/* Carousel Controls */}
-                            <div className="absolute top-6 right-6 flex items-center space-x-2 z-20">
-                                <button
-                                    onClick={prevSlide}
-                                    className="w-10 h-10 rounded-full bg-slate-900/60 hover:bg-indigo-600 text-white backdrop-blur-md flex items-center justify-center transition-colors border border-white/10"
-                                    aria-label="Previous slide"
-                                >
-                                    <ChevronLeft size={20} />
-                                </button>
-                                <button
-                                    onClick={nextSlide}
-                                    className="w-10 h-10 rounded-full bg-slate-900/60 hover:bg-indigo-600 text-white backdrop-blur-md flex items-center justify-center transition-colors border border-white/10"
-                                    aria-label="Next slide"
-                                >
-                                    <ChevronRight size={20} />
-                                </button>
-                            </div>
+                    {/* Duplicate list for smooth seamless loop */}
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20">
+                        <Sparkles size={14} className="text-indigo-400" /> Bóc tách hóa đơn tự động bằng Gemini AI
+                    </span>
+                    <span className="text-indigo-500">•</span>
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20">
+                        <Users size={14} className="text-purple-400" /> Đồng bộ ngân sách cả gia đình realtime
+                    </span>
+                    <span className="text-indigo-500">•</span>
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                        <TrendingUp size={14} className="text-emerald-400" /> Báo cáo trực quan & Biểu đồ chi tiêu thông minh
+                    </span>
+                    <span className="text-indigo-500">•</span>
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20">
+                        <ShieldCheck size={14} className="text-blue-400" /> Bảo mật an toàn chuẩn End-to-End
+                    </span>
+                    <span className="text-indigo-500">•</span>
+                </div>
+            </div>
 
-                            {/* Carousel Dots */}
-                            <div className="absolute bottom-6 right-8 flex space-x-2 z-20">
-                                {SLIDES.map((_, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() => setCurrentSlide(index)}
-                                        className={`h-3 rounded-full transition-all duration-300 ${
-                                            index === currentSlide ? 'bg-white w-8' : 'bg-white/40 w-3 hover:bg-white/70'
-                                        }`}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Right Column: Live Interactive Widgets (5 cols) */}
-                        <div className="lg:col-span-5 flex flex-col space-y-5 relative">
-
-                            {/* Card 1: Quỹ Gia Đình Live Status */}
-                            <div className="glass-card rounded-3xl p-6 sm:p-7 animate-float-slow transform hover:scale-[1.02] transition-transform duration-300 relative overflow-hidden text-slate-800">
-                                <div className="flex items-center justify-between mb-4">
-                                    <div className="flex items-center space-x-3">
-                                        <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-lg shadow-md shadow-indigo-500/30">
-                                            FE
-                                        </div>
-                                        <div>
-                                            <h3 className="font-bold text-slate-900 text-lg leading-tight">Quỹ Gia Đình - 2026</h3>
-                                            <p className="text-xs text-slate-500">Admin: Long Vũ (Role = Admin)</p>
-                                        </div>
-                                    </div>
-                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700 border border-emerald-200">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
-                                        Đang hoạt động
-                                    </span>
-                                </div>
-
-                                <div className="bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-indigo-500/5 rounded-2xl p-5 border border-indigo-100 flex items-center justify-between">
-                                    <div>
-                                        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Tổng chi tiêu tháng này</p>
-                                        <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">
-                                            12.450.000 <span className="text-indigo-600 font-bold text-xl">đ</span>
-                                        </p>
-                                    </div>
-                                    <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-xl shadow-lg shadow-indigo-500/30">
-                                        <PieChart size={24} />
-                                    </div>
-                                </div>
-
-                                <div className="mt-4 space-y-2.5">
-                                    <div className="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 transition-colors">
-                                        <div className="flex items-center space-x-3">
-                                            <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm">
-                                                <ShoppingCart size={16} />
-                                            </div>
-                                            <div>
-                                                <p className="text-xs font-bold text-slate-800">
-                                                    Siêu thị WinMart <span className="text-[10px] font-normal px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700 ml-1">AI Quét</span>
-                                                </p>
-                                                <p className="text-[10px] text-slate-400">Vừa xong • Mua thực phẩm</p>
-                                            </div>
-                                        </div>
-                                        <span className="text-xs font-bold text-rose-500">-450.000 đ</span>
-                                    </div>
-
-                                    <div className="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 transition-colors">
-                                        <div className="flex items-center space-x-3">
-                                            <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-sm">
-                                                <Zap size={16} />
-                                            </div>
-                                            <div>
-                                                <p className="text-xs font-bold text-slate-800">Tiền điện tháng 10</p>
-                                                <p className="text-[10px] text-slate-400">Hôm qua • Hóa đơn cố định</p>
-                                            </div>
-                                        </div>
-                                        <span className="text-xs font-bold text-rose-500">-1.200.000 đ</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Card 2: Quick Action AI Scan */}
-                            <div className="glass-card rounded-2xl p-5 animate-float-delayed transform hover:scale-[1.02] transition-transform duration-300 flex items-center justify-between bg-gradient-to-r from-white/90 to-indigo-50/80 border-indigo-100 text-slate-800">
-                                <div className="flex items-center space-x-4">
-                                    <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center text-xl shadow-md shadow-purple-500/30">
-                                        <Camera size={24} />
-                                    </div>
-                                    <div>
-                                        <h4 className="font-bold text-slate-900 text-sm">Trải nghiệm Quét AI ngay</h4>
-                                        <p className="text-xs text-slate-500">Tải ảnh hóa đơn để AI xử lý tức thì</p>
-                                    </div>
-                                </div>
-                                <button
-                                    onClick={() => setIsScanModalOpen(true)}
-                                    className="px-4 py-2 bg-slate-900 hover:bg-indigo-600 text-white text-xs font-bold rounded-xl shadow transition-colors active:scale-95"
-                                >
-                                    Thử Quét
-                                </button>
-                            </div>
-
-                        </div>
-                    </div>
-                </section>
-
-                {/* ========================================================
-                    4. STATS COUNTER BAR (Băng chỉ số ấn tượng & Uy tín)
-                ======================================================== */}
-                <section id="stats" className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                        <div className="glass-dark-card rounded-2xl p-6 text-center hover-glow">
-                            <div className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-indigo-400 to-blue-400 bg-clip-text text-transparent">
-                                12,400+
-                            </div>
-                            <p className="text-sm font-semibold text-slate-300 mt-2">Gia đình tin dùng</p>
-                            <p className="text-xs text-slate-500 mt-1">Đồng hành quản lý tài chính</p>
-                        </div>
-
-                        <div className="glass-dark-card rounded-2xl p-6 text-center hover-glow">
-                            <div className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-                                99.8%
-                            </div>
-                            <p className="text-sm font-semibold text-slate-300 mt-2">Độ chính xác AI OCR</p>
-                            <p className="text-xs text-slate-500 mt-1">Chuẩn hóa dữ liệu tự động</p>
-                        </div>
-
-                        <div className="glass-dark-card rounded-2xl p-6 text-center hover-glow">
-                            <div className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                                500,000+
-                            </div>
-                            <p className="text-sm font-semibold text-slate-300 mt-2">Hóa đơn đã số hóa</p>
-                            <p className="text-xs text-slate-500 mt-1">Tiết kiệm 85% thời gian nhập</p>
-                        </div>
-
-                        <div className="glass-dark-card rounded-2xl p-6 text-center hover-glow">
-                            <div className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent flex items-center justify-center gap-1">
-                                4.9 <Star size={24} className="fill-amber-400 text-amber-400 inline" />
-                            </div>
-                            <p className="text-sm font-semibold text-slate-300 mt-2">Đánh giá hài lòng</p>
-                            <p className="text-xs text-slate-500 mt-1">Từ hơn 8,500 lượt bình chọn</p>
-                        </div>
-                    </div>
-                </section>
-
-                {/* ========================================================
-                    5. CORE FEATURES SECTION (Tính năng vượt trội)
-                ======================================================== */}
-                <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-                    <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-                        <span className="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 inline-block">
-                            Tính Năng Đột Phá
+            {/* 5. CORE FEATURES SECTION (TÍNH NĂNG VƯỢT TRỘI) */}
+            <section id="features" className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative z-10">
+                <div className="text-center max-w-3xl mx-auto mb-16">
+                    <span className="text-xs font-bold text-indigo-400 uppercase tracking-widest bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">
+                        Tính năng thế hệ mới
+                    </span>
+                    <h2 className="text-3xl sm:text-5xl font-black mt-4 tracking-tight">
+                        Mọi Công Cụ Bạn Cần Để <br />
+                        <span className="bg-gradient-to-r from-indigo-300 to-purple-400 bg-clip-text text-transparent">
+                            Làm Chủ Tài Chính Gia Đình
                         </span>
-                        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
-                            Công nghệ tiên phong cho <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Gia đình hiện đại</span>
+                    </h2>
+                    <p className="mt-4 text-slate-400 text-base sm:text-lg">
+                        Không còn rắc rối về các khoản chi tiêu thất lạc, ai chi bao nhiêu tiền và quỹ gia đình còn lại bao nhiêu.
+                    </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                    
+                    {/* Feature 1 */}
+                    <div className="glass-card glass-card-hover p-8 rounded-3xl border border-white/10 space-y-4">
+                        <div className="w-12 h-12 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center">
+                            <Sparkles size={24} />
+                        </div>
+                        <h3 className="text-xl font-bold text-white">Quét Hóa Đơn AI Đỉnh Cao</h3>
+                        <p className="text-sm text-slate-400 leading-relaxed">
+                            Ứng dụng mô hình Gemini 2.5 Flash đa phương thức, nhận diện chính xác từng dòng chữ, số tiền và tên cửa hàng từ ảnh chụp bất kỳ.
+                        </p>
+                        <div className="pt-2 text-xs font-semibold text-indigo-400 flex items-center gap-1">
+                            Hỗ trợ mọi loại hóa đơn <ChevronRight size={14} />
+                        </div>
+                    </div>
+
+                    {/* Feature 2 */}
+                    <div className="glass-card glass-card-hover p-8 rounded-3xl border border-white/10 space-y-4">
+                        <div className="w-12 h-12 rounded-2xl bg-purple-600/20 border border-purple-500/30 text-purple-400 flex items-center justify-center">
+                            <Users size={24} />
+                        </div>
+                        <h3 className="text-xl font-bold text-white">Quỹ Gia Đình Đa Thành Viên</h3>
+                        <p className="text-sm text-slate-400 leading-relaxed">
+                            Phân quyền khoa học giữa Admin (chủ gia đình) và các thành viên. Mọi người đều có thể đóng góp và kiểm tra ngân sách chung minh bạch.
+                        </p>
+                        <div className="pt-2 text-xs font-semibold text-purple-400 flex items-center gap-1">
+                            Phân quyền vai trò chi tiết <ChevronRight size={14} />
+                        </div>
+                    </div>
+
+                    {/* Feature 3 */}
+                    <div className="glass-card glass-card-hover p-8 rounded-3xl border border-white/10 space-y-4">
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
+                            <PieChart size={24} />
+                        </div>
+                        <h3 className="text-xl font-bold text-white">Biểu Đồ Trực Quan 360°</h3>
+                        <p className="text-sm text-slate-400 leading-relaxed">
+                            Trực quan hóa cơ cấu chi tiêu thành biểu đồ tròn, biểu đồ cột dễ hiểu. Biết ngay tháng này đang chi nhiều cho ăn uống, mua sắm hay tiền điện.
+                        </p>
+                        <div className="pt-2 text-xs font-semibold text-emerald-400 flex items-center gap-1">
+                            Báo cáo theo tuần, tháng & năm <ChevronRight size={14} />
+                        </div>
+                    </div>
+
+                    {/* Feature 4 */}
+                    <div className="glass-card glass-card-hover p-8 rounded-3xl border border-white/10 space-y-4">
+                        <div className="w-12 h-12 rounded-2xl bg-amber-600/20 border border-amber-500/30 text-amber-400 flex items-center justify-center">
+                            <Bell size={24} />
+                        </div>
+                        <h3 className="text-xl font-bold text-white">Cảnh Báo Vượt Hạn Mức</h3>
+                        <p className="text-sm text-slate-400 leading-relaxed">
+                            Tự động gửi cảnh báo khi một danh mục chi tiêu chạm mốc 80% ngân sách kế hoạch, giúp gia đình chủ động điều chỉnh chi tiêu kịp thời.
+                        </p>
+                        <div className="pt-2 text-xs font-semibold text-amber-400 flex items-center gap-1">
+                            Kiểm soát rủi ro bội chi <ChevronRight size={14} />
+                        </div>
+                    </div>
+
+                    {/* Feature 5 */}
+                    <div className="glass-card glass-card-hover p-8 rounded-3xl border border-white/10 space-y-4">
+                        <div className="w-12 h-12 rounded-2xl bg-blue-600/20 border border-blue-500/30 text-blue-400 flex items-center justify-center">
+                            <ShieldCheck size={24} />
+                        </div>
+                        <h3 className="text-xl font-bold text-white">Bảo Mật Cấp Ngân Hàng</h3>
+                        <p className="text-sm text-slate-400 leading-relaxed">
+                            Dữ liệu tài chính được mã hóa End-to-End, xác thực bảo mật với JWT và cam kết bảo vệ tuyệt đối thông tin riêng tư của gia đình bạn.
+                        </p>
+                        <div className="pt-2 text-xs font-semibold text-blue-400 flex items-center gap-1">
+                            An tâm tuyệt đối về dữ liệu <ChevronRight size={14} />
+                        </div>
+                    </div>
+
+                    {/* Feature 6 */}
+                    <div className="glass-card glass-card-hover p-8 rounded-3xl border border-white/10 space-y-4">
+                        <div className="w-12 h-12 rounded-2xl bg-rose-600/20 border border-rose-500/30 text-rose-400 flex items-center justify-center">
+                            <Smartphone size={24} />
+                        </div>
+                        <h3 className="text-xl font-bold text-white">Mượt Mà Mọi Thiết Bị</h3>
+                        <p className="text-sm text-slate-400 leading-relaxed">
+                            Thiết kế Responsive hoàn hảo trên iPhone, Android, iPad và Máy tính bàn. Quét hóa đơn ngay tại siêu thị chỉ với vài chạm trên điện thoại.
+                        </p>
+                        <div className="pt-2 text-xs font-semibold text-rose-400 flex items-center gap-1">
+                            Tối ưu tốc độ tải siêu tốc <ChevronRight size={14} />
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            {/* 6. HOW IT WORKS SECTION (3 BƯỚC ĐƠN GIẢN) */}
+            <section id="how-it-works" className="py-20 bg-slate-900/40 border-y border-white/5 relative z-10">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center max-w-3xl mx-auto mb-16">
+                        <span className="text-xs font-bold text-indigo-400 uppercase tracking-widest bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">
+                            Quy trình đơn giản
+                        </span>
+                        <h2 className="text-3xl sm:text-4xl font-black mt-4 tracking-tight">
+                            Bắt Đầu Quản Lý Chi Tiêu Trong 3 Bước
                         </h2>
-                        <p className="text-slate-400 text-base sm:text-lg">
-                            Không còn nỗi lo ghi chép thủ công từng tờ hóa đơn giấy. FamilyExpense AI mang đến sự minh bạch, tiện lợi và gắn kết cho mọi thành viên.
+                        <p className="mt-3 text-slate-400">
+                            Không cần cài đặt phức tạp, gia đình bạn có thể bắt đầu sử dụng chỉ sau chưa đầy 1 phút.
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {/* Feature 1 */}
-                        <div className="glass-dark-card rounded-3xl p-7 hover-glow flex flex-col justify-between">
-                            <div>
-                                <div className="w-14 h-14 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center mb-6 shadow-lg shadow-indigo-500/10">
-                                    <Cpu size={28} />
-                                </div>
-                                <h3 className="text-xl font-bold text-white mb-3">AI Quét Hóa Đơn Tự Động</h3>
-                                <p className="text-sm text-slate-400 leading-relaxed">
-                                    Chụp ảnh hóa đơn mua sắm siêu thị, nhà hàng, điện nước. Trí tuệ nhân tạo Gemini tự bóc tách số tiền, danh mục và ngày tháng trong chớp mắt.
-                                </p>
-                            </div>
-                            <div className="pt-6 mt-6 border-t border-white/5 flex items-center text-xs font-semibold text-indigo-400">
-                                <span>OCR 0.5s Siêu tốc</span>
-                                <CheckCircle2 size={16} className="ml-auto text-emerald-400" />
-                            </div>
-                        </div>
-
-                        {/* Feature 2 */}
-                        <div className="glass-dark-card rounded-3xl p-7 hover-glow flex flex-col justify-between">
-                            <div>
-                                <div className="w-14 h-14 rounded-2xl bg-purple-600/20 border border-purple-500/30 text-purple-400 flex items-center justify-center mb-6 shadow-lg shadow-purple-500/10">
-                                    <Users size={28} />
-                                </div>
-                                <h3 className="text-xl font-bold text-white mb-3">Phân Quyền Nhóm Đa Cấp</h3>
-                                <p className="text-sm text-slate-400 leading-relaxed">
-                                    Chủ hộ (Admin role = 1) quản lý thành viên, đặt hạn mức quỹ. Các thành viên (Member role = 2) cùng tham gia ghi nhận chi tiêu minh bạch.
-                                </p>
-                            </div>
-                            <div className="pt-6 mt-6 border-t border-white/5 flex items-center text-xs font-semibold text-purple-400">
-                                <span>Role-based Access</span>
-                                <CheckCircle2 size={16} className="ml-auto text-emerald-400" />
-                            </div>
-                        </div>
-
-                        {/* Feature 3 */}
-                        <div className="glass-dark-card rounded-3xl p-7 hover-glow flex flex-col justify-between">
-                            <div>
-                                <div className="w-14 h-14 rounded-2xl bg-pink-600/20 border border-pink-500/30 text-pink-400 flex items-center justify-center mb-6 shadow-lg shadow-pink-500/10">
-                                    <BarChart3 size={28} />
-                                </div>
-                                <h3 className="text-xl font-bold text-white mb-3">Báo Cáo Phân Tích Thông Minh</h3>
-                                <p className="text-sm text-slate-400 leading-relaxed">
-                                    Biểu đồ trực quan sinh động theo từng danh mục: Ăn uống, Siêu thị, Học tập, Điện nước, Y tế. Dễ dàng nắm bắt cơ cấu chi tiêu của gia đình.
-                                </p>
-                            </div>
-                            <div className="pt-6 mt-6 border-t border-white/5 flex items-center text-xs font-semibold text-pink-400">
-                                <span>Thống kê thời gian thực</span>
-                                <CheckCircle2 size={16} className="ml-auto text-emerald-400" />
-                            </div>
-                        </div>
-
-                        {/* Feature 4 */}
-                        <div className="glass-dark-card rounded-3xl p-7 hover-glow flex flex-col justify-between">
-                            <div>
-                                <div className="w-14 h-14 rounded-2xl bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mb-6 shadow-lg shadow-emerald-500/10">
-                                    <ShieldCheck size={28} />
-                                </div>
-                                <h3 className="text-xl font-bold text-white mb-3">Bảo Mật Chuẩn Ngân Hàng</h3>
-                                <p className="text-sm text-slate-400 leading-relaxed">
-                                    Mật khẩu mã hóa Bcrypt một chiều, xác thực mã JWT an toàn, cơ sở dữ liệu Microsoft SQL Server lưu trữ chuẩn doanh nghiệp.
-                                </p>
-                            </div>
-                            <div className="pt-6 mt-6 border-t border-white/5 flex items-center text-xs font-semibold text-emerald-400">
-                                <span>Mã hóa SSL 256-bit</span>
-                                <CheckCircle2 size={16} className="ml-auto text-emerald-400" />
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* ========================================================
-                    6. HOW IT WORKS SECTION (Quy trình 3 bước)
-                ======================================================== */}
-                <section id="how-it-works" className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full border-t border-white/10">
-                    <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-                        <span className="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-purple-500/10 text-purple-400 border border-purple-500/20 inline-block">
-                            Quy Trình Hoạt Động
-                        </span>
-                        <h2 className="text-3xl sm:text-4xl font-black text-white">
-                            Quản lý chi tiêu chỉ với <span className="bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">3 bước đơn giản</span>
-                        </h2>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         {/* Step 1 */}
-                        <div className="glass-dark-card rounded-3xl p-8 text-center relative hover-glow">
-                            <div className="w-16 h-16 rounded-2xl bg-indigo-600 text-white mx-auto flex items-center justify-center text-2xl font-black mb-6 shadow-lg shadow-indigo-600/30">
-                                01
+                        <div className="bg-slate-900/80 p-8 rounded-3xl border border-white/10 relative">
+                            <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white font-black text-xl flex items-center justify-center mb-6 shadow-lg shadow-indigo-600/40">
+                                1
                             </div>
-                            <h4 className="text-xl font-bold text-white mb-2">Chụp hoặc Tải Ảnh Hóa Đơn</h4>
-                            <p className="text-sm text-slate-400">
-                                Chụp ảnh hóa đơn mua sắm từ camera điện thoại hoặc tải file ảnh từ máy tính (JPG, PNG).
+                            <h3 className="text-xl font-bold text-white mb-2">Đăng Ký & Tạo Quỹ</h3>
+                            <p className="text-sm text-slate-400 leading-relaxed">
+                                Tạo tài khoản miễn phí và thiết lập quỹ chi tiêu gia đình. Mời người thân cùng tham gia theo dõi.
                             </p>
                         </div>
 
                         {/* Step 2 */}
-                        <div className="glass-dark-card rounded-3xl p-8 text-center relative hover-glow">
-                            <div className="w-16 h-16 rounded-2xl bg-purple-600 text-white mx-auto flex items-center justify-center text-2xl font-black mb-6 shadow-lg shadow-purple-600/30">
-                                02
+                        <div className="bg-slate-900/80 p-8 rounded-3xl border border-indigo-500/30 relative shadow-xl shadow-indigo-500/5">
+                            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-500 text-white font-black text-xl flex items-center justify-center mb-6 shadow-lg shadow-purple-600/40">
+                                2
                             </div>
-                            <h4 className="text-xl font-bold text-white mb-2">AI Gemini Trích Xuất Siêu Tốc</h4>
-                            <p className="text-sm text-slate-400">
-                                Công nghệ AI đọc chuẩn xác tổng tiền, tên cửa hàng và tự phân loại vào danh mục thích hợp.
+                            <h3 className="text-xl font-bold text-white mb-2">Chụp & Quét Hóa Đơn</h3>
+                            <p className="text-sm text-slate-400 leading-relaxed">
+                                Chụp bất kỳ hóa đơn mua sắm nào. AI tự động đọc và trích xuất số tiền, tên quán và danh mục mà không cần gõ phím.
                             </p>
                         </div>
 
                         {/* Step 3 */}
-                        <div className="glass-dark-card rounded-3xl p-8 text-center relative hover-glow">
-                            <div className="w-16 h-16 rounded-2xl bg-pink-600 text-white mx-auto flex items-center justify-center text-2xl font-black mb-6 shadow-lg shadow-pink-600/30">
-                                03
+                        <div className="bg-slate-900/80 p-8 rounded-3xl border border-white/10 relative">
+                            <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white font-black text-xl flex items-center justify-center mb-6 shadow-lg shadow-indigo-600/40">
+                                3
                             </div>
-                            <h4 className="text-xl font-bold text-white mb-2">Đồng Bộ & Xem Báo Cáo</h4>
-                            <p className="text-sm text-slate-400">
-                                Khoản chi được ghi nhận vào Quỹ Gia Đình, cập nhật số dư tức thì cho tất cả thành viên cùng xem.
+                            <h3 className="text-xl font-bold text-white mb-2">Tận Hưởng Tài Chính Minh Bạch</h3>
+                            <p className="text-sm text-slate-400 leading-relaxed">
+                                Theo dõi báo cáo chi tiêu thời gian thực, nhận đề xuất tiết kiệm và luôn an tâm về quỹ dự phòng gia đình.
                             </p>
-                        </div>
-                    </div>
-                </section>
-
-                {/* ========================================================
-                    7. TRUST, SECURITY & CERTIFICATES (Chứng chỉ uy tín)
-                ======================================================== */}
-                <section id="security" className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-                    <div className="glass-dark-card rounded-3xl p-8 sm:p-12 border border-indigo-500/20 relative overflow-hidden">
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                            <div className="lg:col-span-8 space-y-4">
-                                <div className="inline-flex items-center space-x-2 text-xs font-bold text-indigo-400 uppercase tracking-wider bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">
-                                    <Award size={14} />
-                                    <span>Cam Kết Bảo Mật & Bản Quyền Uy Tín</span>
-                                </div>
-                                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white">
-                                    Dữ liệu tài chính gia đình bạn luôn được bảo vệ tuyệt đối
-                                </h3>
-                                <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-                                    Chúng tôi tuân thủ các tiêu chuẩn an toàn bảo mật thông tin quốc tế. Mọi dữ liệu hóa đơn, số tiền và thông tin cá nhân đều được mã hóa và bảo vệ nghiêm ngặt, không bao giờ được chia sẻ với bất kỳ bên thứ ba nào.
-                                </p>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4">
-                                    <div className="flex items-center space-x-2 text-xs text-slate-300 font-semibold">
-                                        <BadgeCheck size={18} className="text-indigo-400 shrink-0" />
-                                        <span>Mã hóa SSL 256-Bit</span>
-                                    </div>
-                                    <div className="flex items-center space-x-2 text-xs text-slate-300 font-semibold">
-                                        <BadgeCheck size={18} className="text-indigo-400 shrink-0" />
-                                        <span>Chuẩn ISO/IEC 27001</span>
-                                    </div>
-                                    <div className="flex items-center space-x-2 text-xs text-slate-300 font-semibold">
-                                        <BadgeCheck size={18} className="text-indigo-400 shrink-0" />
-                                        <span>SQL Server Enterprise</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="lg:col-span-4 flex flex-col items-center justify-center space-y-4 p-6 rounded-2xl bg-white/5 border border-white/10 text-center">
-                                <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-indigo-600 flex items-center justify-center text-white shadow-xl shadow-emerald-500/20">
-                                    <Lock size={32} />
-                                </div>
-                                <div>
-                                    <h5 className="font-bold text-white text-base">Hệ Thống Đã Được Chứng Nhận</h5>
-                                    <p className="text-xs text-slate-400 mt-1">Bản quyền số © 2026 FamilyExpense AI</p>
-                                </div>
-                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                                    ✓ Verified Trustmark
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* ========================================================
-                    8. CTA SECTION (Kêu gọi hành động)
-                ======================================================== */}
-                <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-                    <div className="relative rounded-3xl p-8 sm:p-14 overflow-hidden text-center bg-gradient-to-r from-indigo-900/80 via-purple-900/80 to-slate-900/90 border border-indigo-500/30 shadow-2xl">
-                        <div className="relative z-10 max-w-3xl mx-auto space-y-6">
-                            <span className="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest bg-white/10 text-white border border-white/20 inline-block">
-                                Khởi Đầu Tài Chính Thông Minh
-                            </span>
-                            <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
-                                Sẵn sàng nâng cấp cách quản lý chi tiêu gia đình bạn?
-                            </h2>
-                            <p className="text-slate-300 text-base sm:text-lg">
-                                Tham gia cùng hàng chục ngàn gia đình Việt đang tiết kiệm hàng giờ mỗi tuần với công nghệ AI Gemini 2.5!
-                            </p>
-                            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                                <Link
-                                    to="/register"
-                                    className="w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-white bg-indigo-600 hover:bg-indigo-500 shadow-xl shadow-indigo-600/40 border border-indigo-400/30 transition-all duration-300 hover:scale-105 inline-flex items-center justify-center gap-2"
-                                >
-                                    <span>Tạo Tài Khoản Miễn Phí</span>
-                                    <ArrowRight size={18} />
-                                </Link>
-                                <button
-                                    onClick={() => setIsScanModalOpen(true)}
-                                    className="w-full sm:w-auto px-8 py-4 rounded-2xl font-bold text-slate-200 hover:text-white bg-white/10 hover:bg-white/20 border border-white/10 backdrop-blur-md transition-all duration-300 inline-flex items-center justify-center gap-2"
-                                >
-                                    <ScanLine size={18} />
-                                    <span>Thử Quét Hóa Đơn Ngay</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                {/* ========================================================
-                    9. FULL MODERN FOOTER (Footer Bản Quyền & Uy Tín Chuẩn Web Hiện Đại)
-                ======================================================== */}
-                <footer className="bg-slate-950 border-t border-white/10 pt-16 pb-12 text-slate-400">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
-
-                            {/* Cột 1: Thông tin thương hiệu (2 cols trên desktop) */}
-                            <div className="lg:col-span-2 space-y-4">
-                                <div className="flex items-center space-x-3">
-                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/30">
-                                        <Receipt size={20} />
-                                    </div>
-                                    <span className="text-xl font-black text-white tracking-tight">
-                                        FamilyExpense <span className="text-indigo-500">AI</span>
-                                    </span>
-                                </div>
-                                <p className="text-sm text-slate-400 leading-relaxed pr-4">
-                                    Nền tảng quản lý tài chính gia đình và quỹ nhóm số một ứng dụng trí tuệ nhân tạo Gemini AI. Giúp gia đình kiểm soát thu chi minh bạch, gắn kết và tự động hóa toàn bộ việc quét hóa đơn.
-                                </p>
-                                <div className="space-y-2 text-xs pt-2">
-                                    <p className="flex items-center gap-2 text-slate-400">
-                                        <MapPin size={14} className="text-indigo-400 shrink-0" />
-                                        <span>Tòa nhà Công nghệ số, TP. Hà Nội & TP. Hồ Chí Minh, Việt Nam</span>
-                                    </p>
-                                    <p className="flex items-center gap-2 text-slate-400">
-                                        <Mail size={14} className="text-indigo-400 shrink-0" />
-                                        <span>support@familyexpense.ai • contact@familyexpense.vn</span>
-                                    </p>
-                                    <p className="flex items-center gap-2 text-slate-400">
-                                        <Phone size={14} className="text-indigo-400 shrink-0" />
-                                        <span>Hotline hỗ trợ kỹ thuật: 1900 8888 (24/7)</span>
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Cột 2: Sản phẩm & Tính năng */}
-                            <div className="space-y-3">
-                                <h4 className="text-sm font-bold text-white uppercase tracking-wider">Sản Phẩm</h4>
-                                <ul className="space-y-2 text-sm">
-                                    <li>
-                                        <Link to="/scanner" className="hover:text-indigo-400 transition-colors">Quét Hóa Đơn AI Gemini</Link>
-                                    </li>
-                                    <li>
-                                        <a href="#features" className="hover:text-indigo-400 transition-colors">Quản Lý Quỹ Gia Đình</a>
-                                    </li>
-                                    <li>
-                                        <a href="#features" className="hover:text-indigo-400 transition-colors">Phân Quyền Admin & Member</a>
-                                    </li>
-                                    <li>
-                                        <a href="#features" className="hover:text-indigo-400 transition-colors">Báo Cáo Biểu Đồ Trực Quan</a>
-                                    </li>
-                                    <li>
-                                        <a href="#features" className="hover:text-indigo-400 transition-colors">Tích Hợp SQL Server 2026</a>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            {/* Cột 3: Chính sách & Uy tín */}
-                            <div className="space-y-3">
-                                <h4 className="text-sm font-bold text-white uppercase tracking-wider">Uy Tín & Pháp Lý</h4>
-                                <ul className="space-y-2 text-sm">
-                                    <li>
-                                        <a href="#security" className="hover:text-indigo-400 transition-colors">Chính Sách Bảo Mật</a>
-                                    </li>
-                                    <li>
-                                        <a href="#security" className="hover:text-indigo-400 transition-colors">Điều Khoản Dịch Vụ</a>
-                                    </li>
-                                    <li>
-                                        <a href="#security" className="hover:text-indigo-400 transition-colors">Cam Kết Quyền Riêng Tư</a>
-                                    </li>
-                                    <li>
-                                        <a href="#security" className="hover:text-indigo-400 transition-colors">Tiêu Chuẩn ISO/IEC 27001</a>
-                                    </li>
-                                    <li>
-                                        <a href="#security" className="hover:text-indigo-400 transition-colors">Chứng Chỉ Mã Hóa SSL</a>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            {/* Cột 4: Hỗ trợ & Khách hàng */}
-                            <div className="space-y-3">
-                                <h4 className="text-sm font-bold text-white uppercase tracking-wider">Hỗ Trợ</h4>
-                                <ul className="space-y-2 text-sm">
-                                    <li>
-                                        <Link to="/login" className="hover:text-indigo-400 transition-colors">Đăng Nhập Tài Khoản</Link>
-                                    </li>
-                                    <li>
-                                        <Link to="/register" className="hover:text-indigo-400 transition-colors">Đăng Ký Thành Viên</Link>
-                                    </li>
-                                    <li>
-                                        <Link to="/forgot-password" className="hover:text-indigo-400 transition-colors">Khôi Phục Mật Khẩu</Link>
-                                    </li>
-                                    <li>
-                                        <a href="#how-it-works" className="hover:text-indigo-400 transition-colors">Hướng Dẫn Bóc Tách Hóa Đơn</a>
-                                    </li>
-                                    <li>
-                                        <a href="#stats" className="hover:text-indigo-400 transition-colors">Câu Hỏi Thường Gặp (FAQ)</a>
-                                    </li>
-                                </ul>
-                            </div>
-
-                        </div>
-
-                        {/* Thanh Bản Quyền & Giấy Phép Dưới Cùng */}
-                        <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-                            <div className="flex flex-wrap items-center gap-2">
-                                <span>© 2026 <strong>FamilyExpense AI Corporation</strong>. Toàn bộ bản quyền được bảo hộ.</span>
-                                <span className="hidden sm:inline">•</span>
-                                <span>Phát triển bằng Google Gemini AI & React</span>
-                            </div>
-
-                            <div className="flex items-center space-x-6">
-                                <span className="text-slate-400 font-medium">Bản quyền phần mềm số: <strong>VN-2026-FE-AI</strong></span>
-                                <span className="px-2.5 py-1 rounded bg-white/5 border border-white/10 text-indigo-400 font-mono text-[11px]">
-                                    v2.5.0-Release
-                                </span>
-                            </div>
-                        </div>
-
-                    </div>
-                </footer>
-
-                {/* 4. FLOATING NOTIFICATION TOAST (Cố định góc dưới phải) */}
-                {isToastVisible && (
-                    <div className="fixed bottom-6 right-6 z-50 max-w-md w-full px-4 transition-all duration-500 transform">
-                        <div className={`glass-notification rounded-2xl p-4 text-white shadow-2xl relative overflow-hidden group transition-all duration-400 ${
-                            toastFading ? 'opacity-0 translate-y-3' : 'opacity-100 translate-y-0'
-                        }`}>
-                            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-
-                            <div className="flex items-start space-x-3.5">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-lg shadow-indigo-500/40">
-                                    <Wand2 size={20} className="animate-wiggle" />
-                                </div>
-                                <div className="flex-1 pr-4">
-                                    <div className="flex items-center space-x-2">
-                                        <span className="text-xs font-bold uppercase tracking-wider text-indigo-400">Thông báo AI</span>
-                                        <span className="text-[10px] text-slate-400">{TOAST_MESSAGES[toastIndex].time}</span>
-                                    </div>
-                                    <p className="text-sm font-semibold text-slate-100 mt-0.5">
-                                        {TOAST_MESSAGES[toastIndex].text}
-                                    </p>
-                                </div>
-                                <button
-                                    onClick={() => setIsToastVisible(false)}
-                                    className="text-slate-400 hover:text-white transition-colors text-sm p-1"
-                                    aria-label="Close notification"
-                                >
-                                    <X size={16} />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-            </div>
-
-            {/* 5. AI SCAN MODAL POPUP */}
-            {isScanModalOpen && (
-                <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-                    <div className="glass-card max-w-lg w-full rounded-3xl p-6 sm:p-8 relative text-slate-800 shadow-2xl animate-in fade-in zoom-in duration-200">
-                        <button
-                            onClick={() => setIsScanModalOpen(false)}
-                            className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors"
-                        >
-                            <X size={18} />
-                        </button>
-
-                        <div className="text-center">
-                            <div className="w-16 h-16 rounded-2xl bg-indigo-100 text-indigo-600 mx-auto flex items-center justify-center text-2xl mb-4 shadow-sm">
-                                <UploadCloud size={32} />
-                            </div>
-                            <h3 className="text-xl font-extrabold text-slate-900">Quét Hóa Đơn AI Gemini</h3>
-                            <p className="text-sm text-slate-500 mt-1">
-                                Tải lên hóa đơn hoặc chuyển sang trang Quét Hóa Đơn chuyên sâu để AI tự phân tích
-                            </p>
-                        </div>
-
-                        <div
-                            onClick={() => {
-                                setIsScanModalOpen(false);
-                                navigate('/scanner');
-                            }}
-                            className="mt-6 border-2 border-dashed border-indigo-200 hover:border-indigo-500 rounded-2xl p-8 text-center cursor-pointer bg-indigo-50/50 hover:bg-indigo-50 transition-all group"
-                        >
-                            <Receipt size={36} className="text-indigo-400 group-hover:text-indigo-600 mx-auto mb-2 transition-colors" />
-                            <p className="text-xs font-semibold text-indigo-600">Bấm để mở Trợ lý Quét Hóa Đơn AI</p>
-                            <p className="text-[10px] text-slate-400 mt-1">Hỗ trợ JPG, PNG, WEBP (Tối đa 10MB) với nhận diện tự động</p>
-                        </div>
-
-                        <div className="mt-6 flex space-x-3">
-                            <button
-                                onClick={() => setIsScanModalOpen(false)}
-                                className="w-1/2 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
-                            >
-                                Hủy
-                            </button>
-                            <button
-                                onClick={() => {
-                                    setIsScanModalOpen(false);
-                                    navigate('/scanner');
-                                }}
-                                className="w-1/2 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold text-white shadow-lg shadow-indigo-500/30 transition-all flex items-center justify-center gap-1.5"
-                            >
-                                <Sparkles size={16} /> Bắt đầu quét AI
-                            </button>
                         </div>
                     </div>
                 </div>
-            )}
+            </section>
+
+            {/* 7. INTERACTIVE AI DEMO PREVIEW (MỤC TRẢI NGHIỆM AI TƯƠNG TÁC) */}
+            <section id="ai-demo" className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative z-10">
+                <div className="text-center max-w-3xl mx-auto mb-12">
+                    <span className="text-xs font-bold text-indigo-400 uppercase tracking-widest bg-indigo-500/10 px-3 py-1 rounded-full border border-indigo-500/20">
+                        Thử nghiệm trực tiếp
+                    </span>
+                    <h2 className="text-3xl sm:text-5xl font-black mt-4 tracking-tight">
+                        Xem Trí Tuệ Nhân Tạo Xử Lý Hóa Đơn
+                    </h2>
+                    <p className="mt-3 text-slate-400 text-base sm:text-lg">
+                        Bấm vào các mẫu hóa đơn thực tế bên dưới để khám phá khả năng bóc tách siêu việt:
+                    </p>
+                </div>
+
+                {/* Tab Selectors */}
+                <div className="flex flex-wrap items-center justify-center gap-3 mb-8">
+                    {SAMPLE_RECEIPTS.map((receipt) => (
+                        <button
+                            key={receipt.id}
+                            onClick={() => setActiveDemoTab(receipt)}
+                            className={`px-5 py-3 rounded-2xl font-semibold text-sm transition-all duration-200 cursor-pointer ${
+                                activeDemoTab.id === receipt.id
+                                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 border border-indigo-400/40 scale-105'
+                                    : 'bg-slate-900/80 text-slate-300 hover:bg-slate-800 border border-white/10'
+                            }`}
+                        >
+                            {receipt.tabName}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Active Receipt Preview Box */}
+                <div className="max-w-4xl mx-auto bg-slate-900/80 backdrop-blur-2xl p-6 sm:p-10 rounded-3xl border border-indigo-500/30 shadow-2xl">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                        
+                        {/* Summary Info */}
+                        <div className="space-y-4">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold border border-emerald-500/20">
+                                <Check size={14} /> AI Trích xuất thành công trong {activeDemoTab.timeTaken}
+                            </div>
+                            <h3 className="text-2xl font-black text-white">{activeDemoTab.store}</h3>
+                            
+                            <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
+                                <span className="text-xs text-slate-400 block mb-1">Tổng tiền thanh toán</span>
+                                <span className="text-3xl font-black text-indigo-400">
+                                    {activeDemoTab.total.toLocaleString('vi-VN')} đ
+                                </span>
+                            </div>
+
+                            <div className="space-y-2 text-sm text-slate-300">
+                                <p className="flex justify-between py-1 border-b border-white/5">
+                                    <span className="text-slate-400">Phân loại danh mục:</span>
+                                    <span className="font-semibold text-white">{activeDemoTab.category}</span>
+                                </p>
+                                <p className="flex justify-between py-1 border-b border-white/5">
+                                    <span className="text-slate-400">Ngày hóa đơn:</span>
+                                    <span className="font-semibold text-white">{activeDemoTab.date}</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Extracted Line Items */}
+                        <div className="bg-slate-950/80 p-5 rounded-2xl border border-white/10 space-y-3">
+                            <p className="text-xs font-bold uppercase tracking-wider text-indigo-300 flex items-center gap-1.5">
+                                <FileText size={14} /> Các món hàng được AI đọc chi tiết:
+                            </p>
+                            <ul className="space-y-2">
+                                {activeDemoTab.items.map((item, idx) => (
+                                    <li key={idx} className="flex items-center gap-2 text-xs text-slate-200 bg-white/5 p-2.5 rounded-xl border border-white/5">
+                                        <CheckCircle2 size={14} className="text-emerald-400 shrink-0" />
+                                        <span>{item}</span>
+                                    </li>
+                                ))}
+                            </ul>
+
+                            <div className="pt-4">
+                                <Link
+                                    to="/scanner"
+                                    className="w-full py-3 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 transition-all duration-200"
+                                >
+                                    <Sparkles size={16} /> Thử quét hóa đơn thật của bạn ngay
+                                </Link>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            {/* 8. SECURITY & ENCRYPTION SECTION */}
+            <section id="security" className="py-20 bg-slate-900/30 border-t border-white/5 relative z-10">
+                <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
+                    <div className="w-14 h-14 rounded-2xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center mx-auto">
+                        <Lock size={28} />
+                    </div>
+                    <h2 className="text-3xl font-black text-white">An Toàn & Bảo Mật Dữ Liệu Tối Đa</h2>
+                    <p className="text-slate-400 text-base max-w-2xl mx-auto">
+                        Thông tin tài chính của gia đình bạn là điều tuyệt mật. Chúng tôi cam kết không chia sẻ dữ liệu cho bên thứ ba và áp dụng công nghệ mã hóa tiên tiến nhất.
+                    </p>
+                    <div className="flex flex-wrap items-center justify-center gap-4 pt-4 text-xs font-semibold text-slate-300">
+                        <span className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2">
+                            <ShieldCheck size={16} className="text-emerald-400" /> Mã hóa dữ liệu End-to-End
+                        </span>
+                        <span className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2">
+                            <Lock size={16} className="text-indigo-400" /> Xác thực phân quyền JWT an toàn
+                        </span>
+                        <span className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 flex items-center gap-2">
+                            <CheckCircle2 size={16} className="text-purple-400" /> Sao lưu dữ liệu đám mây định kỳ
+                        </span>
+                    </div>
+                </div>
+            </section>
+
+            {/* 9. BOTTOM CALL TO ACTION BANNER */}
+            <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative z-10">
+                <div className="relative rounded-3xl bg-gradient-to-r from-indigo-900/60 via-purple-900/40 to-slate-900/80 border border-indigo-500/30 p-8 sm:p-14 text-center overflow-hidden shadow-2xl">
+                    <div className="absolute -right-20 -top-20 w-80 h-80 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
+                    <div className="relative z-10 max-w-3xl mx-auto space-y-6">
+                        <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+                            Bắt Đầu Quản Lý Chi Tiêu Cho Tổ Ấm Ngay Hôm Nay
+                        </h2>
+                        <p className="text-slate-300 text-base sm:text-lg">
+                            Đăng ký hoàn toàn miễn phí • Không cần thẻ tín dụng • Sẵn sàng sử dụng trong 1 phút.
+                        </p>
+                        <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
+                            <Link
+                                to="/register"
+                                className="w-full sm:w-auto px-8 py-4 bg-white text-indigo-950 hover:bg-slate-100 font-extrabold text-base rounded-2xl shadow-xl transition-all duration-200 hover:scale-105 flex items-center justify-center gap-2"
+                            >
+                                Tạo tài khoản miễn phí <ArrowRight size={18} />
+                            </Link>
+                            <Link
+                                to="/scanner"
+                                className="w-full sm:w-auto px-8 py-4 bg-white/10 hover:bg-white/15 text-white font-semibold text-base rounded-2xl border border-white/20 backdrop-blur-xl transition-all duration-200 hover:scale-105 flex items-center justify-center gap-2"
+                            >
+                                <Sparkles size={18} /> Quét thử hóa đơn ngay
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* 10. COMPREHENSIVE MODERN FOOTER (CHÂN TRANG ĐẦY ĐỦ) */}
+            <footer className="border-t border-white/10 bg-slate-950/90 text-slate-400 relative z-10 pt-16 pb-12">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-white/10">
+                        
+                        {/* Col 1: Brand Info */}
+                        <div className="lg:col-span-2 space-y-4">
+                            <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/30">
+                                    <Receipt size={20} />
+                                </div>
+                                <span className="text-xl font-black text-white tracking-tight">
+                                    FamilyExpense AI
+                                </span>
+                            </div>
+                            <p className="text-sm text-slate-400 leading-relaxed max-w-sm">
+                                Nền tảng quản lý tài chính gia đình thông minh thế hệ mới, tiên phong ứng dụng trí tuệ nhân tạo Gemini để tự động hóa bóc tách hóa đơn và kiểm soát ngân sách.
+                            </p>
+                            <div className="pt-2 flex items-center space-x-3 text-xs text-indigo-400 font-medium">
+                                <span>Phát triển bởi Long Vũ</span>
+                                <span>•</span>
+                                <span>Phiên bản 2026</span>
+                            </div>
+                        </div>
+
+                        {/* Col 2: Sản phẩm */}
+                        <div className="space-y-3">
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-white">Sản Phẩm</h4>
+                            <ul className="space-y-2 text-sm">
+                                <li>
+                                    <Link to="/scanner" className="hover:text-indigo-400 transition-colors">Quét hóa đơn AI</Link>
+                                </li>
+                                <li>
+                                    <a href="#features" className="hover:text-indigo-400 transition-colors">Quỹ gia đình</a>
+                                </li>
+                                <li>
+                                    <a href="#features" className="hover:text-indigo-400 transition-colors">Báo cáo thu chi</a>
+                                </li>
+                                <li>
+                                    <a href="#features" className="hover:text-indigo-400 transition-colors">Cảnh báo hạn mức</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        {/* Col 3: Hướng dẫn & Trợ giúp */}
+                        <div className="space-y-3">
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-white">Khám Phá</h4>
+                            <ul className="space-y-2 text-sm">
+                                <li>
+                                    <a href="#how-it-works" className="hover:text-indigo-400 transition-colors">Cách thức hoạt động</a>
+                                </li>
+                                <li>
+                                    <a href="#ai-demo" className="hover:text-indigo-400 transition-colors">Trải nghiệm OCR mẫu</a>
+                                </li>
+                                <li>
+                                    <Link to="/login" className="hover:text-indigo-400 transition-colors">Đăng nhập tài khoản</Link>
+                                </li>
+                                <li>
+                                    <Link to="/register" className="hover:text-indigo-400 transition-colors">Đăng ký mới</Link>
+                                </li>
+                            </ul>
+                        </div>
+
+                        {/* Col 4: Bảo mật & Pháp lý */}
+                        <div className="space-y-3">
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-white">Pháp Lý & Bảo Mật</h4>
+                            <ul className="space-y-2 text-sm">
+                                <li>
+                                    <a href="#security" className="hover:text-indigo-400 transition-colors">Chính sách bảo mật</a>
+                                </li>
+                                <li>
+                                    <a href="#security" className="hover:text-indigo-400 transition-colors">Điều khoản dịch vụ</a>
+                                </li>
+                                <li>
+                                    <a href="#security" className="hover:text-indigo-400 transition-colors">Tiêu chuẩn mã hóa</a>
+                                </li>
+                                <li>
+                                    <span className="text-xs text-slate-500">API Gemini 2.5 Ready</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                    </div>
+
+                    {/* Bottom Copyright & System Status */}
+                    <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+                        <p>© 2026 FamilyExpense AI. Nền tảng quản lý tài chính gia đình thông minh. All rights reserved.</p>
+                        <div className="flex items-center space-x-2">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                            <span className="text-slate-400 font-medium">Hệ thống AI hoạt động ổn định 99.99%</span>
+                        </div>
+                    </div>
+                </div>
+            </footer>
 
         </div>
     );

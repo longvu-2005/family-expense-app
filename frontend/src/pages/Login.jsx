@@ -7,13 +7,10 @@ export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        setError('');
-        setLoading(true);
         try {
             const response = await axios.post('http://localhost:5000/api/auth/login', {
                 email,
@@ -22,19 +19,17 @@ export default function Login() {
             if (response.data.success) {
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify(response.data.user));
-                navigate('/scanner'); // Chuyển hướng vào trang quét hóa đơn hoặc dashboard
+                navigate('/dashboard'); // Chuyển hướng vào trang quản lý chi tiêu
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Đăng nhập thất bại, vui lòng thử lại!');
-        } finally {
-            setLoading(false);
+            setError(err.response?.data?.message || 'Đăng nhập thất bại!');
         }
     };
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-blue-100 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-                {/* Back to Home Link */}
+                {/* Back link */}
                 <div className="mb-4">
                     <Link to="/" className="inline-flex items-center text-xs font-semibold text-gray-500 hover:text-indigo-600 transition">
                         <ArrowLeft size={14} className="mr-1" /> Về Trang chủ
@@ -96,14 +91,9 @@ export default function Login() {
 
                     <button
                         type="submit"
-                        disabled={loading}
-                        className="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 font-semibold shadow-lg shadow-indigo-200 transition duration-200 disabled:opacity-60"
+                        className="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 font-semibold shadow-lg shadow-indigo-200 transition duration-200"
                     >
-                        {loading ? 'Đang đăng nhập...' : (
-                            <>
-                                Đăng nhập <ArrowRight className="ml-2" size={18} />
-                            </>
-                        )}
+                        Đăng nhập <ArrowRight className="ml-2" size={18} />
                     </button>
                 </form>
 
