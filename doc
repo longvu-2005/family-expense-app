@@ -1,0 +1,39 @@
+============================================================
+       ĐỀ ÁN: ỨNG DỤNG QUẢN LÝ TÀI CHÍNH GIA ĐÌNH THÔNG MINH 
+                    (TÍCH HỢP AI & OCR)
+============================================================
+
+1. GIỚI THIỆU CHUNG & MỤC TIÊU
+- Vấn đề: Việc ghi chép thu chi gia đình thủ công thường mất thời gian, dễ quên, dẫn đến việc bỏ dở và không kiểm soát được tài chính.
+- Giải pháp: Xây dựng một Web App thông minh cho phép người dùng chụp/tải ảnh hóa đơn để tự động trích xuất chi phí, phân loại danh mục, tổng hợp doanh thu/chi tiêu theo nhóm gia đình và tích hợp trợ lý AI hỏi đáp.
+
+2. ĐỐI TƯỢNG HƯỚNG TỚI (TARGET AUDIENCE)
+- Các hộ gia đình trẻ: Cần quản lý tài chính chung, minh bạch các khoản thu chi sinh hoạt (điện, nước, chợ búa, học phí).
+- Các nhóm bạn cùng ở trọ / đi du lịch chung: Cần chia sẻ quỹ chung và tính toán công bằng các khoản chi tiêu nhóm.
+- Cá nhân bận rộn: Muốn quản lý tài chính cá nhân nhanh chóng bằng công nghệ tự động hóa.
+
+3. CÁC TÍNH NĂNG CỐT LÕI (CORE FEATURES)
+- Đăng nhập & Phân quyền nhóm: 
+  + Hỗ trợ tạo nhóm gia đình/bạn bè.
+  + Phân quyền rõ ràng (Role = 1: Admin/Chủ hộ có quyền quản lý, duyệt, xem báo cáo toàn nhóm; Role = 2: Thành viên có quyền quét hóa đơn, đóng góp chi tiêu).
+- Quét hóa đơn thông minh bằng AI (OCR Receipt Scanner):
+  + Tải ảnh hóa đơn lên hệ thống.
+  + Gemini AI tự động đọc và bóc tách: Tên cửa hàng, Tổng tiền, Ngày tháng, Danh mục chi tiêu.
+  + Màn hình kiểm tra & xác nhận trước khi lưu vào cơ sở dữ liệu.
+- Bảng thống kê & Biểu đồ trực quan (Dashboard):
+  + Tổng hợp chi tiêu theo Ngày / Tuần / Tháng / Năm.
+  + Biểu đồ tròn phân loại tỷ lệ chi tiêu (Ăn uống, Mua sắm, Hóa đơn...).
+- Trợ lý AI Hỏi Đáp Tài Chính (AI Chatbot Assistant):
+  + Cho phép hỏi đáp bằng tiếng Việt về tình hình tài chính của nhóm dựa trên dữ liệu thực tế trong SQL Server.
+
+4. CÔNG NGHỆ SỬ DỤNG
+- Frontend: ReactJS, Vite, Tailwind CSS / CSS, Lucide Icons, Recharts.
+- Backend: Node.js, Express.js, Multer, Axios.
+- AI Engine: Google GenAI SDK (Gemini API).
+- Database: Microsoft SQL Server (MS SQL).
+
+5. HƯỚNG PHÁT TRIỂN MỞ RỘNG (FUTURE ENHANCEMENTS)
+- Chia nhỏ hóa đơn theo đầu người: Dành cho nhóm bạn đi ăn uống, tự động tính ai cần trả bao nhiêu cho ai.
+- Cảnh báo chi tiêu thông minh: Gửi thông báo khi danh mục nào đó (như ăn uống, giải trí) vượt mức ngân sách gia đình đặt ra trong tháng.
+- Phát triển Mobile App: Đóng gói thành ứng dụng di động (iOS/Android) để chụp ảnh hóa đơn tiện lợi ngay bằng camera điện thoại.
+- Tích hợp ví điện tử / ngân hàng: Tự động đồng bộ biến động số dư tài khoản ngân hàng (nếu có API/Webhook hỗ trợ).
