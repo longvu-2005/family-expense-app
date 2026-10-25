@@ -66,8 +66,8 @@ Lưu ý: "total_amount" phải là một số nguyên (number), không chứa k�
                 total_amount: 158000,
                 category: 'Siêu thị & Tạp hóa',
                 date: today,
-                note: isKeyConfigured 
-                    ? 'AI gặp trục trặc, hệ thống trả về dữ liệu mẫu tạm thời.' 
+                note: isKeyConfigured
+                    ? 'AI gặp trục trặc, hệ thống trả về dữ liệu mẫu tạm thời.'
                     : 'Hãy điền GEMINI_API_KEY thật vào file backend/.env để AI bóc tách thực tế từ ảnh.'
             };
         }

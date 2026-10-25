@@ -9,7 +9,17 @@ const authMiddleware = require('../middleware/authMiddleware');
  * Prefix gốc tại server.js: /api/auth
  * ========================================================
  */
+console.log('AUTH CONTROLLER:', {
+    register: typeof authController.register,
+    login: typeof authController.login,
+    forgotPassword: typeof authController.forgotPassword,
+    resetPassword: typeof authController.resetPassword,
+    verifyOtp: typeof authController.verifyOtp,
+    getMe: typeof authController.getMe,
+    changePassword: typeof authController.changePassword,
+});
 
+console.log('AUTH MIDDLEWARE:', typeof authMiddleware);
 // 1. Đăng ký tài khoản mới: POST /api/auth/register
 router.post('/register', authController.register);
 
@@ -27,5 +37,6 @@ router.get('/me', authMiddleware, authController.getMe);
 
 // 6. Đổi mật khẩu khi đã đăng nhập (Yêu cầu Token): PUT /api/auth/change-password
 router.put('/change-password', authMiddleware, authController.changePassword);
+router.post('/verify-otp', authController.verifyOtp);
 
 module.exports = router;

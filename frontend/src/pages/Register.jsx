@@ -39,7 +39,7 @@ export default function Register() {
 
     return (
         <div className="min-h-screen bg-slate-950 text-white font-sans flex items-center justify-center px-4 py-12 relative overflow-hidden selection:bg-indigo-500 selection:text-white">
-            
+
             {/* Ambient Background Light Effects */}
             <div className="fixed inset-0 pointer-events-none z-0">
                 <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-purple-600/15 rounded-full blur-3xl animate-pulse-glow" />
@@ -58,12 +58,12 @@ export default function Register() {
 
             {/* Main Auth Glass Card */}
             <div className="w-full max-w-md relative z-10">
-                
+
                 {/* Glowing Outer Aura */}
                 <div className="absolute -inset-1 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-3xl blur-2xl opacity-25" />
 
                 <div className="relative bg-slate-900/85 backdrop-blur-2xl p-8 sm:p-10 rounded-3xl border border-white/10 shadow-2xl shadow-indigo-500/10 space-y-6">
-                    
+
                     {/* Brand Header */}
                     <div className="text-center space-y-3">
                         <Link to="/" className="inline-block">
@@ -95,7 +95,7 @@ export default function Register() {
 
                     {/* Registration Form */}
                     <form className="space-y-4" onSubmit={handleRegister}>
-                        
+
                         {/* Full Name */}
                         <div>
                             <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 mb-1.5">
