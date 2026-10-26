@@ -5,13 +5,24 @@
   line-height: 1.5;
   font-weight: 400;
   color-scheme: light;
+  --bg-primary: #f0f7ff;
+  --text-primary: #0f172a;
+}
+
+:root[data-theme="dark"],
+html.dark {
+  color-scheme: dark;
+  --bg-primary: #080d1b;
+  --text-primary: #f8fafc;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #f8fafc;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #root {

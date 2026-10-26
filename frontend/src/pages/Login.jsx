@@ -87,11 +87,11 @@ export default function Login() {
             console.log('Role:', role);
             console.log('Saved role:', localStorage.getItem('role'));
 
-            // Điều hướng theo quyền
+            // Điều hướng theo quyền: role = 1 vào Admin, role = 2 vào UserHome
             if (role === 1) {
                 navigate('/admin', { replace: true });
             } else {
-                navigate('/scanner', { replace: true });
+                navigate('/user', { replace: true });
             }
         } catch (err) {
             console.error('Login error:', err);

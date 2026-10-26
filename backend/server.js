@@ -34,9 +34,13 @@ app.get('/', async (req, res) => {
 // 2. Khai báo các đường dẫn API
 const authRoutes = require('./routes/authRoutes');
 const receiptRoutes = require('./routes/receiptRoutes');
+const aiChatRoutes = require('./routes/aiChat');
+const messageRoutes = require('./routes/messageRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api', receiptRoutes);
+app.use('/api/ai', aiChatRoutes);
+app.use('/api/messages', messageRoutes);
 
 // 3. Xử lý 404 và Error Handler
 app.use((req, res) => {

@@ -2,13 +2,15 @@ import React, { useState } from "react";
 import { NavLink, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, Users, UsersRound, ScanLine, Gem, ShieldCheck,
-  Bell, Search, Menu, X, ChevronRight, LogOut, Settings2
+  Bell, Search, Menu, X, ChevronRight, LogOut, Settings2, MessageSquare
 } from "lucide-react";
 import AdminOverview from "./AdminOverview";
 import AdminUsers from "./AdminUsers";
 import AdminGroups from "./AdminGroups";
 import AdminAIUsage from "./AdminAIUsage";
 import AdminPlans from "./AdminPlans";
+import AdminChat from "./AdminChat";
+import ThemeToggle from "../../components/ThemeToggle";
 import "./AdminDashboard.css";
 
 const menu = [
@@ -17,6 +19,7 @@ const menu = [
   { to: "groups", label: "Nhóm đang sử dụng", icon: UsersRound },
   { to: "ai-usage", label: "Hoạt động AI", icon: ScanLine },
   { to: "plans", label: "Gói tài khoản", icon: Gem },
+  { to: "chat", label: "Tin nhắn & Chat", icon: MessageSquare },
 ];
 
 export default function AdminDashboard() {
@@ -94,6 +97,7 @@ export default function AdminDashboard() {
             <div className="family-admin-breadcrumb">Admin Console <ChevronRight size={13} /> <strong>{activeMenu.label}</strong></div>
           </div>
           <div className="family-admin-topbar-right">
+            <ThemeToggle variant="switch" />
             <div className="family-admin-system-status"><i /> SYSTEM OPERATIONAL</div>
             <button className="family-admin-top-icon" aria-label="Tìm kiếm" onClick={() => navigate("/admin/users")}><Search size={17} /></button>
             <button className="family-admin-top-icon family-admin-bell" aria-label="Thông báo"><Bell size={17} /><i /></button>
@@ -110,6 +114,7 @@ export default function AdminDashboard() {
             <Route path="groups" element={<AdminGroups />} />
             <Route path="ai-usage" element={<AdminAIUsage />} />
             <Route path="plans" element={<AdminPlans />} />
+            <Route path="chat" element={<AdminChat />} />
             <Route path="*" element={<Navigate to="overview" replace />} />
           </Routes>
           <footer className="family-admin-footer">

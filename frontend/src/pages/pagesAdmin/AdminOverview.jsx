@@ -7,7 +7,7 @@ import "./AdminOverview.css";
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
 const stats = [
-  { label: "Tổng tài khoản", value: "2,840", trend: "+12.8%", note: "so với tháng trước", icon: Users, color: "purple", up: true },
+  { label: "Tổng tài khoản", value: "2,840", trend: "+12.8%", note: "so với tháng trước", icon: Users, color: "blue", up: true },
   { label: "Tài khoản hoạt động", value: "2,164", trend: "+8.2%", note: "30 ngày gần nhất", icon: UserCheck, color: "green", up: true },
   { label: "Nhóm đang sử dụng", value: "684", trend: "+5.4%", note: "nhóm có hoạt động", icon: UsersRound, color: "blue", up: true },
   { label: "Hóa đơn AI đã quét", value: "18,392", trend: "+18.6%", note: "lượt quét tích lũy", icon: ScanLine, color: "pink", up: true },
@@ -16,17 +16,17 @@ const stats = [
 const chartData = {
   labels: ["T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12"],
   datasets: [
-    { label: "Tài khoản mới", data: [120, 180, 165, 245, 220, 310, 355, 420], borderColor: "#9b8cff", backgroundColor: "rgba(155,140,255,.12)", fill: true, tension: .4, pointRadius: 3, pointBackgroundColor: "#b8aaff" },
-    { label: "Tài khoản hoạt động", data: [640, 720, 790, 860, 950, 1080, 1190, 1320], borderColor: "#4bd6ad", backgroundColor: "rgba(75,214,173,.04)", fill: true, tension: .4, pointRadius: 2, pointBackgroundColor: "#4bd6ad" },
+    { label: "Tài khoản mới", data: [120, 180, 165, 245, 220, 310, 355, 420], borderColor: "#0284c7", backgroundColor: "rgba(2,132,199,.12)", fill: true, tension: .4, pointRadius: 3, pointBackgroundColor: "#38bdf8" },
+    { label: "Tài khoản hoạt động", data: [640, 720, 790, 860, 950, 1080, 1190, 1320], borderColor: "#059669", backgroundColor: "rgba(5,150,105,.06)", fill: true, tension: .4, pointRadius: 2, pointBackgroundColor: "#10b981" },
   ],
 };
 
 const chartOptions = {
   responsive: true, maintainAspectRatio: false,
-  plugins: { legend: { position: "bottom", labels: { color: "#9aa7c3", usePointStyle: true, boxWidth: 7, boxHeight: 7, padding: 18, font: { size: 10 } } }, tooltip: { backgroundColor: "#111a30", borderColor: "rgba(148,163,184,.2)", borderWidth: 1, titleColor: "#fff", bodyColor: "#cbd5e1", padding: 10 } },
+  plugins: { legend: { position: "bottom", labels: { color: "#475569", usePointStyle: true, boxWidth: 7, boxHeight: 7, padding: 18, font: { size: 10 } } }, tooltip: { backgroundColor: "#0f172a", borderColor: "#e2e8f0", borderWidth: 1, titleColor: "#fff", bodyColor: "#e2e8f0", padding: 10 } },
   scales: {
-    x: { grid: { display: false }, ticks: { color: "#7583a2", font: { size: 9 } }, border: { display: false } },
-    y: { grid: { color: "rgba(148,163,184,.08)" }, ticks: { color: "#7583a2", font: { size: 9 }, maxTicksLimit: 5 }, border: { display: false } },
+    x: { grid: { display: false }, ticks: { color: "#64748b", font: { size: 9 } }, border: { display: false } },
+    y: { grid: { color: "rgba(226,232,240,.8)" }, ticks: { color: "#64748b", font: { size: 9 }, maxTicksLimit: 5 }, border: { display: false } },
   },
 };
 

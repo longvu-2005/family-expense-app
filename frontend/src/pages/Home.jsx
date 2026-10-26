@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 
 import './Home.css';
+import MiniChatWidget from '../components/MiniChatWidget';
 
 // Dữ liệu mẫu tương tác cho mục Demo Trợ lý AI
 const SAMPLE_RECEIPTS = [
@@ -835,6 +836,9 @@ export default function Home() {
                     </div>
                 </div>
             </footer>
+
+            {/* Trợ lý AI Mini Chat Widget (Nổi ở góc dưới màn hình) */}
+            <MiniChatWidget />
 
         </div>
     );
